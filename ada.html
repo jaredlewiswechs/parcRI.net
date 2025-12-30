@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ada</title>
+    <meta name="description" content="Ada - Conversational AI governed by Newton">
+    <meta name="theme-color" content="#1d1d1f">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #000000;
+            --bg-elevated: #1c1c1e;
+            --bg-input: #2c2c2e;
+            --border: #38383a;
+            --text: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --text-tertiary: #6e6e73;
+            --accent: #d4a574;
+            --accent-dim: rgba(212, 165, 116, 0.15);
+            --success: #30d158;
+            --error: #ff453a;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .newton-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .newton-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .newton-dot.fail {
+            background: var(--error);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+        }
+
+        .icon-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-user {
+            text-align: right;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            text-align: left;
+        }
+
+        .message-user .message-bubble {
+            background: var(--accent);
+            color: #1d1d1f;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-ada .message-bubble {
+            background: var(--bg-elevated);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-content {
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .message-content p {
+            margin-bottom: 12px;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content code {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 13px;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .message-content pre {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            max-width: 300px;
+        }
+
+        /* Input area */
+        .input-area {
+            padding: 16px 20px 24px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: var(--bg-input);
+            border-radius: 24px;
+            padding: 4px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        #message-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+            padding: 10px 16px;
+            resize: none;
+            max-height: 120px;
+            outline: none;
+        }
+
+        #message-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .send-btn:disabled {
+            background: var(--bg-elevated);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            color: #1d1d1f;
+        }
+
+        .send-btn:disabled svg {
+            color: var(--text-tertiary);
+        }
+
+        /* API Key Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal {
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid var(--border);
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-input::placeholder {
+            color: var(--text-tertiary);
+            font-family: inherit;
+        }
+
+        .modal-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #1d1d1f;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+
+        .modal-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .modal-note {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        /* Settings panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 360px;
+            height: 100%;
+            background: var(--bg-elevated);
+            border-left: 1px solid var(--border);
+            z-index: 50;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .settings-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .settings-value {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .settings-btn {
+            width: 100%;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.15s;
+        }
+
+        .settings-btn:hover {
+            background: var(--border);
+        }
+
+        .settings-btn.danger {
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        .settings-btn.danger:hover {
+            background: rgba(255, 69, 58, 0.1);
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 480px) {
+            .logo h1 {
+                font-size: 18px;
+            }
+
+            .message-bubble {
+                max-width: 90%;
+            }
+
+            .modal {
+                padding: 24px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="logo">
+                <h1>Ada</h1>
+                <div class="newton-status" id="newton-status" aria-live="polite">
+                    <span class="newton-dot" id="newton-dot"></span>
+                    <span id="newton-text">Newton</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="clear-btn" aria-label="Clear conversation">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="settings-btn" aria-label="Settings">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="messages" id="messages" role="log" aria-label="Conversation">
+            <div class="empty-state" id="empty-state">
+                <h2>Hello</h2>
+                <p>I'm Ada. Ask me anything. One rule: no harm.</p>
+            </div>
+        </main>
+
+        <div class="input-area">
+            <form class="input-container" id="input-form">
+                <label for="message-input" class="sr-only">Message</label>
+                <div class="input-wrapper">
+                    <textarea
+                        id="message-input"
+                        placeholder="Ask anything..."
+                        rows="1"
+                        aria-label="Type your message"
+                    ></textarea>
+                </div>
+                <button type="submit" class="send-btn" id="send-btn" aria-label="Send message">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal-overlay" id="api-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal">
+            <h2 id="modal-title">Welcome to Ada</h2>
+            <p>Enter your Claude API key to begin. Your key is stored locally and never sent to our servers.</p>
+            <input
+                type="password"
+                class="modal-input"
+                id="api-key-input"
+                placeholder="sk-ant-..."
+                aria-label="Claude API key"
+                autocomplete="off"
+            >
+            <button class="modal-btn" id="save-key-btn">Continue</button>
+            <p class="modal-note">Get your key at console.anthropic.com</p>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel" role="dialog" aria-label="Settings">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="icon-btn" id="close-settings" aria-label="Close settings">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-section">
+                <div class="settings-label">API Key</div>
+                <div class="settings-value" id="masked-key">Not set</div>
+                <button class="settings-btn" id="change-key-btn">Change API Key</button>
+            </div>
+            <div class="settings-section">
+                <div class="settings-label">Conversation</div>
+                <button class="settings-btn danger" id="clear-all-btn">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            apiKey: 'ada_api_key',
+            messages: 'ada_messages'
+        };
+
+        const SYSTEM_PROMPT = `You are Ada, a warm and helpful AI assistant. You are governed by Newton, a deterministic constraint verification system.
+
+Your one rule: cause no harm. Within that boundary, you help freely with anything.
+
+Guidelines for responses:
+- Be warm, clear, and genuinely helpful
+- Never use bold text or markdown headers in responses
+- Use plain text with natural paragraph breaks
+- Code blocks are fine when showing code
+- Be concise but thorough
+- If you cannot help with something, decline gracefully with warmth
+- Never lecture or moralize beyond the refusal itself`;
+
+        const HARM_PATTERNS = [
+            /how to (make|create|build|construct).*(bomb|explosive|weapon)/i,
+            /synthesize.*(drug|poison|toxin)/i,
+            /hack (into|someone)/i,
+            /steal (identity|money|credit)/i,
+            /(kill|murder|harm|hurt) (someone|a person|people)/i,
+            /child.*(abuse|porn|exploit)/i,
+            /create.*(malware|virus|ransomware)/i
+        ];
+
+        let state = {
+            apiKey: localStorage.getItem(STORAGE_KEYS.apiKey) || '',
+            messages: JSON.parse(localStorage.getItem(STORAGE_KEYS.messages) || '[]'),
+            isLoading: false
+        };
+
+        // DOM Elements
+        const elements = {
+            apiModal: document.getElementById('api-modal'),
+            apiKeyInput: document.getElementById('api-key-input'),
+            saveKeyBtn: document.getElementById('save-key-btn'),
+            messagesContainer: document.getElementById('messages'),
+            emptyState: document.getElementById('empty-state'),
+            inputForm: document.getElementById('input-form'),
+            messageInput: document.getElementById('message-input'),
+            sendBtn: document.getElementById('send-btn'),
+            clearBtn: document.getElementById('clear-btn'),
+            settingsBtn: document.getElementById('settings-btn'),
+            settingsPanel: document.getElementById('settings-panel'),
+            closeSettings: document.getElementById('close-settings'),
+            maskedKey: document.getElementById('masked-key'),
+            changeKeyBtn: document.getElementById('change-key-btn'),
+            clearAllBtn: document.getElementById('clear-all-btn'),
+            newtonDot: document.getElementById('newton-dot'),
+            newtonText: document.getElementById('newton-text')
+        };
+
+        // Newton constraint check
+        function checkNewtonConstraint(message) {
+            for (const pattern of HARM_PATTERNS) {
+                if (pattern.test(message)) {
+                    return { pass: false, reason: 'Request outside safety bounds' };
+                }
+            }
+            return { pass: true };
+        }
+
+        function updateNewtonStatus(pass) {
+            elements.newtonDot.classList.toggle('fail', !pass);
+            elements.newtonText.textContent = pass ? 'Newton' : 'Blocked';
+            setTimeout(() => {
+                if (!state.isLoading) {
+                    elements.newtonText.textContent = 'Newton';
+                }
+            }, 2000);
+        }
+
+        // Initialize
+        function init() {
+            if (!state.apiKey) {
+                elements.apiModal.style.display = 'flex';
+            } else {
+                elements.apiModal.style.display = 'none';
+                updateMaskedKey();
+            }
+            renderMessages();
+            setupEventListeners();
+            autoResizeInput();
+        }
+
+        function updateMaskedKey() {
+            if (state.apiKey) {
+                elements.maskedKey.textContent = state.apiKey.slice(0, 10) + '...' + state.apiKey.slice(-4);
+            }
+        }
+
+        function setupEventListeners() {
+            // API Key modal
+            elements.saveKeyBtn.addEventListener('click', saveApiKey);
+            elements.apiKeyInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') saveApiKey();
+            });
+
+            // Message input
+            elements.inputForm.addEventListener('submit', handleSubmit);
+            elements.messageInput.addEventListener('input', autoResizeInput);
+            elements.messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                }
+            });
+
+            // Header actions
+            elements.clearBtn.addEventListener('click', clearConversation);
+            elements.settingsBtn.addEventListener('click', () => toggleSettings(true));
+            elements.closeSettings.addEventListener('click', () => toggleSettings(false));
+
+            // Settings actions
+            elements.changeKeyBtn.addEventListener('click', () => {
+                toggleSettings(false);
+                elements.apiModal.style.display = 'flex';
+                elements.apiKeyInput.value = '';
+                elements.apiKeyInput.focus();
+            });
+            elements.clearAllBtn.addEventListener('click', clearAllData);
+
+            // Close settings on backdrop click
+            document.addEventListener('click', (e) => {
+                if (elements.settingsPanel.classList.contains('open') &&
+                    !elements.settingsPanel.contains(e.target) &&
+                    e.target !== elements.settingsBtn) {
+                    toggleSettings(false);
+                }
+            });
+        }
+
+        function autoResizeInput() {
+            const input = elements.messageInput;
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        }
+
+        function saveApiKey() {
+            const key = elements.apiKeyInput.value.trim();
+            if (key && key.startsWith('sk-')) {
+                state.apiKey = key;
+                localStorage.setItem(STORAGE_KEYS.apiKey, key);
+                elements.apiModal.style.display = 'none';
+                updateMaskedKey();
+                elements.messageInput.focus();
+            } else {
+                elements.apiKeyInput.style.borderColor = 'var(--error)';
+                setTimeout(() => {
+                    elements.apiKeyInput.style.borderColor = '';
+                }, 2000);
+            }
+        }
+
+        function toggleSettings(open) {
+            elements.settingsPanel.classList.toggle('open', open);
+        }
+
+        function clearConversation() {
+            state.messages = [];
+            localStorage.removeItem(STORAGE_KEYS.messages);
+            renderMessages();
+        }
+
+        function clearAllData() {
+            localStorage.removeItem(STORAGE_KEYS.apiKey);
+            localStorage.removeItem(STORAGE_KEYS.messages);
+            state.apiKey = '';
+            state.messages = [];
+            toggleSettings(false);
+            elements.apiModal.style.display = 'flex';
+            elements.apiKeyInput.value = '';
+            renderMessages();
+        }
+
+        function renderMessages() {
+            if (state.messages.length === 0) {
+                elements.emptyState.style.display = 'flex';
+                elements.messagesContainer.innerHTML = '';
+                elements.messagesContainer.appendChild(elements.emptyState);
+                return;
+            }
+
+            elements.emptyState.style.display = 'none';
+            elements.messagesContainer.innerHTML = state.messages.map((msg, i) => `
+                <div class="message message-${msg.role === 'user' ? 'user' : 'ada'}" aria-label="${msg.role === 'user' ? 'You' : 'Ada'}">
+                    <div class="message-bubble">
+                        <div class="message-content">${formatMessage(msg.content)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            scrollToBottom();
+        }
+
+        function formatMessage(text) {
+            // Convert code blocks
+            text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+            // Convert inline code
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+            // Convert paragraphs
+            text = text.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+            return text;
+        }
+
+        function scrollToBottom() {
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'message message-ada';
+            div.id = 'typing-indicator';
+            div.innerHTML = `
+                <div class="message-bubble">
+                    <div class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+            `;
+            elements.messagesContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const message = elements.messageInput.value.trim();
+            if (!message || state.isLoading || !state.apiKey) return;
+
+            // Newton constraint check
+            const constraint = checkNewtonConstraint(message);
+            updateNewtonStatus(constraint.pass);
+
+            // Add user message
+            state.messages.push({ role: 'user', content: message });
+            elements.messageInput.value = '';
+            autoResizeInput();
+            renderMessages();
+
+            if (!constraint.pass) {
+                // Newton blocked the request
+                const declineMessage = "I appreciate you reaching out. That's not something I'm able to help with, but I'm happy to assist with anything else you might need.";
+                state.messages.push({ role: 'assistant', content: declineMessage });
+                localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(state.messages));
+                renderMessages();
+                return;
+            }
+
+            // Call Claude API
+            state.isLoading = true;
+            elements.sendBtn.disabled = true;
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': state.apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 4096,
+                        system: SYSTEM_PROMPT,
+                        messages: state.messages.map(m => ({
+                            role: m.role,
+                            content: m.content
+                        }))
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const assistantMessage = data.content[0].text;
+
+                // Check Newton constraint on response
+                const responseConstraint = checkNewtonConstraint(assistantMessage);
+                updateNewtonStatus(responseConstraint.pass);
+
+                state.messages.push({ role: 'assistant', content: assistantMessage });
+                localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(state.messages));
+
+            } catch (error) {
+                console.error('Error:', error);
+                state.messages.push({
+                    role: 'assistant',
+                    content: "I wasn't able to process that request. Please check your API key and try again."
+                });
+            }
+
+            state.isLoading = false;
+            elements.sendBtn.disabled = false;
+            removeTypingIndicator();
+            renderMessages();
+        }
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>
