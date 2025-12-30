@@ -2,33 +2,26 @@
 
 Personal site for Jared Lewis - Deterministic AI Architecture.
 
-## Quick Deploy to GitHub Pages
+## Automated Deployment
 
-### Option 1: New Repository
+This repository is configured for automatic deployment to GitHub Pages via GitHub Actions.
 
-1. Create a new repository on GitHub named `parcri.net` (or any name)
-2. Upload all files from this folder to the repository
-3. Go to Settings → Pages
-4. Under "Source", select "Deploy from a branch"
-5. Select `main` branch and `/ (root)` folder
-6. Click Save
+### Setup
 
-Your site will be live at `https://yourusername.github.io/parcri.net/`
+1. Go to repository Settings → Pages
+2. Under "Source", select **GitHub Actions**
+3. Push to the `main` branch to trigger deployment
 
-### Option 2: Using Git
+The site will automatically deploy on every push to `main`. The workflow can also be triggered manually from the Actions tab.
 
-```bash
-# Initialize and push
-cd parcri-deploy
-git init
-git add .
-git commit -m "Initial deploy"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/parcri.net.git
-git push -u origin main
-```
+### First-Time Setup
 
-Then enable Pages in repository settings.
+If this is a new repository:
+
+1. Push your code to the `main` branch
+2. Enable GitHub Pages in Settings → Pages
+3. Select "GitHub Actions" as the source
+4. The deployment workflow will run automatically
 
 ## Custom Domain Setup (parcri.net)
 
