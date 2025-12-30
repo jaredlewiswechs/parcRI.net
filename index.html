@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jared Lewis</title>
+    <meta name="description" content="Deterministic AI architecture. Building systems that know when to stop.">
+    <meta property="og:title" content="Jared Lewis">
+    <meta property="og:description" content="Deterministic AI architecture.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://parcri.net">
+    <link rel="canonical" href="https://parcri.net">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        :root {
+            --bg: #f6f6f6;
+            --bg-elevated: #ffffff;
+            --bg-inset: #e9e9e9;
+            --border: #c8c8c8;
+            --border-strong: #a0a0a0;
+            --text: #1d1d1f;
+            --text-secondary: #515154;
+            --text-tertiary: #86868b;
+            --groove-light: #ffffff;
+            --groove-dark: #c0c0c0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1d1d1f;
+                --bg-elevated: #2d2d2d;
+                --bg-inset: #161616;
+                --border: #3d3d3d;
+                --border-strong: #5a5a5a;
+                --text: #f5f5f7;
+                --text-secondary: #a1a1a6;
+                --text-tertiary: #6e6e73;
+                --groove-light: #3d3d3d;
+                --groove-dark: #0d0d0d;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 64px 0 48px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        header .role {
+            font-size: 17px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .contact {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .contact a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .contact span {
+            margin: 0 8px;
+        }
+
+        .groove {
+            height: 2px;
+            background: linear-gradient(to bottom, var(--groove-dark) 0%, var(--groove-dark) 50%, var(--groove-light) 50%, var(--groove-light) 100%);
+            margin: 32px 0;
+        }
+
+        .panel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .panel-header {
+            background: linear-gradient(to bottom, var(--bg) 0%, var(--bg-inset) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .panel-body p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .panel-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .panel-body strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .equation {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 14px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            margin: 16px 0;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .example-row {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+        }
+
+        .example-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .example-row:first-child {
+            padding-top: 0;
+        }
+
+        .example-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .example-input {
+            font-size: 14px;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .example-output {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .product-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .product-row:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .product-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .product-status {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .product-status.live {
+            color: #34c759;
+        }
+
+        .honest-list {
+            list-style: none;
+        }
+
+        .honest-list li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .honest-list li::before {
+            content: "·";
+            position: absolute;
+            left: 0;
+            color: var(--text-tertiary);
+            font-weight: bold;
+        }
+
+        .cta-panel {
+            background: var(--text);
+            border: 1px solid var(--border-strong);
+            text-align: center;
+            padding: 32px 24px;
+            margin: 32px 0;
+        }
+
+        .cta-panel h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--bg);
+            margin-bottom: 8px;
+        }
+
+        .cta-panel p {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 20px;
+            text-decoration: none;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: var(--bg);
+            color: var(--text);
+            border-color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--bg);
+            border-color: var(--border-strong);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px 0 48px;
+        }
+
+        footer p {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 48px 0 32px;
+            }
+
+            header h1 {
+                font-size: 26px;
+            }
+
+            .contact span {
+                display: block;
+                margin: 4px 0;
+            }
+
+            .product-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .product-status {
+                text-align: left;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jared Lewis</h1>
+            <p class="role">Deterministic AI Architecture</p>
+            <p class="contact">
+                <a href="mailto:Jn.Lewis1@outlook.com">Jn.Lewis1@outlook.com</a>
+                <span>·</span>
+                <a href="https://www.linkedin.com/in/jaredlewisuh" target="_blank" rel="noopener">LinkedIn</a>
+            </p>
+        </header>
+
+        <div class="groove"></div>
+
+        <div class="panel">
+            <div class="panel-header">Problem</div>
+            <div class="panel-body">
+                <p>AI generates outputs. Some are wrong. Some shouldn't exist at all.</p>
+                <p>Most approaches make the model smarter. I validate before execution.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">Approach</div>
+            <div class="panel-body">
+                <p><strong>Newton</strong> checks whether an AI's proposed action meets constraints before that action runs.</p>
+                <div class="equation">current == goal → 1==1 → pass</div>
+                <p>Deterministic. No probability. Pass or fail.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">Examples</div>
+            <div class="panel-body">
+                <div class="example-row">
+                    <div class="example-label">Document Generation</div>
+                    <div class="example-input">"Summarize Q3 earnings"</div>
+                    <div class="example-output">Newton checks: source exists, numbers match, format valid. All pass → execute. Any fail → reject with reason.</div>
+                </div>
+                <div class="example-row">
+                    <div class="example-label">API Action</div>
+                    <div class="example-input">"Update customer address"</div>
+                    <div class="example-output">Newton checks: address format valid, customer exists, user permitted. Pass → execute. Fail → stop.</div>
+                </div>
+                <div class="example-row">
+                    <div class="example-label">Conversation Boundary</div>
+                    <div class="example-input">"What medication should I take?"</div>
+                    <div class="example-output">Newton checks: epistemic bounds. Medical advice requires license. Constraint fails → decline, explain why.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">Products</div>
+            <div class="panel-body">
+                <div class="product-row">
+                    <div>
+                        <div class="product-name">Newton</div>
+                        <div class="product-desc">Verification engine. Constraint checking, audit trail.</div>
+                    </div>
+                    <div class="product-status">Patent filed</div>
+                </div>
+                <div class="product-row">
+                    <div>
+                        <div class="product-name">Ada</div>
+                        <div class="product-desc">Conversational interface governed by Newton.</div>
+                    </div>
+                    <div class="product-status">Patent filed</div>
+                </div>
+                <div class="product-row">
+                    <div>
+                        <div class="product-name">THIA Pocket</div>
+                        <div class="product-desc">Anomaly detection for time-series data.</div>
+                    </div>
+                    <div class="product-status live">Opening soon</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">What This Is Not</div>
+            <div class="panel-body">
+                <ul class="honest-list">
+                    <li>Not a replacement for existing LLMs</li>
+                    <li>Not magic — constraint checking</li>
+                    <li>Not enterprise-deployed yet</li>
+                    <li>Not funded — bootstrapped, one person</li>
+                    <li>Not perfect — but deterministic</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">Looking For</div>
+            <div class="panel-body">
+                <p>Pilots with regulated industries. Strategic conversations. Acquisition discussions.</p>
+                <p>Background: embedded systems, education technology, infrastructure. Former teacher. Houston.</p>
+            </div>
+        </div>
+
+        <div class="cta-panel">
+            <h2>Interested?</h2>
+            <p>I respond to direct messages.</p>
+            <div class="cta-buttons">
+                <a href="mailto:Jn.Lewis1@outlook.com" class="btn btn-primary">Email</a>
+                <a href="https://www.linkedin.com/in/jaredlewisuh" class="btn btn-secondary" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Jared Lewis · Houston</p>
+        </footer>
+    </div>
+</body>
+</html>
